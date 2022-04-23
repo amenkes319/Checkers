@@ -62,7 +62,7 @@ private:
 	 * @param target Coordinates of the target to move the piece to
 	 * @return true if the piece can move to the target
 	 */
-	bool IsValidMove(Coords piece, Coords target);
+	bool IsValidMove(Coords &piece, Coords &target);
 
 	Piece m_board[BOARD_SIZE][BOARD_SIZE];
 };

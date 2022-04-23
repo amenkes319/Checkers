@@ -27,7 +27,7 @@ void Board::ResetBoard() {
 	}
 }
 
-bool Board::IsValidMove(Coords piece, Coords target) {
+bool Board::IsValidMove(Coords &piece, Coords &target) {
 	std::vector<Coords> moves = PossibleMoves(piece);
 	return true;
 	//return std::find(moves.begin(), moves.end(), target) != moves.end();
