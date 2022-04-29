@@ -1,10 +1,14 @@
 #include "Board.h"
 
+#define IsValid(index) ( index >= 0 && index < BOARD_SIZE )
+#define Abs(n) ( n < 0 ? -n : n )
+
 Board::Board() {
 	ResetBoard();
 }
 
-bool Board::Move(Coords piece, Coords target) {
+// TODO: Add king'ing
+bool Board::Move(Position piece, Position target) {
 	if (IsValidMove(piece, target)) {
 		m_board[target.row][target.col] = m_board[piece.row][piece.col];
 		m_board[piece.row][piece.col] = EMPTY;
@@ -17,9 +21,9 @@ void Board::ResetBoard() {
 	for (int i = 0; i < BOARD_SIZE; i++) {
 		for (int j = 0; j < BOARD_SIZE; j++) {
 			if (i < 3 && j % 2 != i % 2) {
-				m_board[i][j] = BLACK_PIECE;
+				m_board[i][j] = BLACK_KING;
 			} else if (i >= 5 && j % 2 != i % 2) {
-				m_board[i][j] = RED_PIECE;
+				m_board[i][j] = RED_KING;
 			} else {
 				m_board[i][j] = EMPTY;
 			}
@@ -27,30 +31,30 @@ void Board::ResetBoard() {
 	}
 }
 
-bool Board::IsValidMove(Coords &piece, Coords &target) {
-	std::vector<Coords> moves = PossibleMoves(piece);
+bool Board::IsValidMove(Position &piece, Position &target) {
+	std::vector<Position> moves = PossibleMoves(piece);
 	return true;
-	//return std::find(moves.begin(), moves.end(), target) != moves.end();
+	// std::find(moves.begin(), moves.end(), target) != moves.end();
 }
 
-/**
- * Helper function to determine if an index is within the bounds of the board
- * @param index Index to test
- * @return true if index is between [0, BOARD_SIZE)
- */
-static bool IsValid(int index) {
-	return index >= 0 && index < BOARD_SIZE;
+std::vector<Position> Board::Jumps(std::vector<Position> &so_far, Position start) {
+	std::vector<Position> jumps;
+	return jumps;
 }
 
 // TODO: Find possible jumps
-std::vector<Coords> Board::PossibleMoves(Coords piece) {
-	std::vector<Coords> moves;
-	Coords c;
+std::vector<Position> Board::PossibleMoves(Position piece) {
+	std::vector<Position> moves;
+	Position p;
 	for (int i = -1; i <= 1; i += 2) {
 		for (int j = -1; j <= 1; j += 2) {
-			if (IsValid(piece.row + i) && IsValid(piece.col + j)) {
-				c = { piece.row + i, piece.col + j };
-				moves.push_back(c);
+			if ((m_board[piece.row][piece.col] == i || // pawn only moves up or down
+				Abs(m_board[piece.row][piece.col]) == KING) && // king can go both
+				IsValid(piece.row + i) && IsValid(piece.col + j) &&
+				m_board[piece.row + i][piece.col + j] == EMPTY)
+			{
+				p = { piece.row + i, piece.col + j };
+				moves.push_back(p);
 			}
 		}
 	}
@@ -71,10 +75,14 @@ void Board::PrintBoard() {
 			char p = '-';
 			switch (m_board[i][j]) {
 			case 1:
+				p = 'x';
+				break;
 			case 2:
 				p = 'X';
 				break;
 			case -1:
+				p = 'o';
+				break;
 			case -2:
 				p = 'O';
 				break;

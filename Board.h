@@ -7,6 +7,8 @@
 #include <vector>
 #include <algorithm>
 #define BOARD_SIZE 8
+#define PAWN 1
+#define KING 2
 
 /**
  * Enumeration to represent the possible states of a square of the board
@@ -14,13 +16,13 @@
  */
 enum Piece {
 	EMPTY       = 0,
-	BLACK_PIECE = 1,
-	BLACK_KING  = 2,
-	RED_PIECE   = -1,
-	RED_KING    = -2,
+	BLACK_PIECE = PAWN,
+	BLACK_KING  = KING,
+	RED_PIECE   = -PAWN,
+	RED_KING    = -KING
 };
 
-struct Coords {
+struct Position {
 	int row;
 	int col;
 };
@@ -33,11 +35,11 @@ public:
 
 	/**
 	 * Move piece to target coordinates
-	 * @param piece Coordinates of desired piece to move
-	 * @param target Coordinates of the target to move the piece to
+	 * @param piece Position of desired piece to move
+	 * @param target Position of the target to move the piece to
 	 * @return true if the move is valid
 	 */
-	bool Move(Coords piece, Coords target);
+	bool Move(Position piece, Position target);
 
 	/**
 	 * Reset positions of pieces
@@ -46,23 +48,25 @@ public:
 
 	/**
 	 * Finds all possible moves that can be made by the piece
-	 * @param piece Coordinates of desired piece to move
-	 * @return vector of all possible coordinates the piece can move to
+	 * @param piece Position of desired piece to move
+	 * @return vector of all possible positions the piece can move to
 	 */
-	std::vector<Coords> PossibleMoves(Coords piece);
+	std::vector<Position> PossibleMoves(Position piece);
 
 	std::vector<Board> LookAhead();
 
 	void PrintBoard();
 
 private:
+	std::vector<Position> Jumps(std::vector<Position> &so_far, Position start);
+
 	/**
 	 * Returns if the coords of the piece can move to the target
-	 * @param piece Coordinates of desired piece to move
-	 * @param target Coordinates of the target to move the piece to
+	 * @param piece Position of desired piece to move
+	 * @param target Position of the target to move the piece to
 	 * @return true if the piece can move to the target
 	 */
-	bool IsValidMove(Coords &piece, Coords &target);
+	bool IsValidMove(Position &piece, Position &target);
 
 	Piece m_board[BOARD_SIZE][BOARD_SIZE];
 };
