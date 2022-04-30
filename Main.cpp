@@ -3,14 +3,12 @@
 
 int main() {
 	Board b;
+	b.Move({ 2, 1 }, { 3, 2 });
+	b.Move({ 5, 4 }, { 4, 3 });
 	b.PrintBoard();
-	Position p = { 5, 2 };
-	Position p1 = { 4, 1 };
-	b.Move(p, p1);
-	b.PrintBoard();
-
-	for (auto p : b.PossibleMoves(p1)) {
-		std::cout << p.row << ", " << p.col << std::endl;
+	std::unordered_set<Position> jumps = b.Jumps({ 3, 2 });
+	for (auto p : jumps) {
+		std::cout << p << std::endl;
 	}
 
 	return 0;
