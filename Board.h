@@ -15,11 +15,11 @@
  * Black pieces are positive, reds are negative
  */
 enum Piece {
-	EMPTY       = 0,
-	BLACK_PAWN  = PAWN,
-	BLACK_KING  = KING,
-	RED_PAWN    = -PAWN,
-	RED_KING    = -KING
+	EMPTY      =  0,
+	BLACK_PAWN =  PAWN,
+	BLACK_KING =  KING,
+	RED_PAWN   = -PAWN,
+	RED_KING   = -KING
 };
 
 /* Enumeration to represent the coordinates of each piece on the board. */
