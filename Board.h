@@ -16,9 +16,9 @@
  */
 enum Piece {
 	EMPTY       = 0,
-	BLACK_PIECE = PAWN,
+	BLACK_PAWN  = PAWN,
 	BLACK_KING  = KING,
-	RED_PIECE   = -PAWN,
+	RED_PAWN    = -PAWN,
 	RED_KING    = -KING
 };
 
@@ -74,14 +74,14 @@ public:
 	
 	std::unordered_set<Board> LookAhead();
 
-	Piece At(Position pos);
-	Piece At(int row, int col);
+	Piece At(Position pos) const;
+	Piece At(int row, int col) const;
 
 	void PrintBoard();
 
 private:
 	std::unordered_set<Position> PossibleJumps(const Position &start, Board &board);
-	void Jumps(std::unordered_set<Position>& so_far, const Position& start, Board& board);
+	void Jumps(std::unordered_set<Position> &so_far, const Position &start, Board &board);
 
 	void RemovePiece(const Position& target);
 
@@ -108,15 +108,15 @@ namespace std {
 	template<> struct hash<Board>
 	{
 		// Zobrist hashing
-		std::size_t operator()(Board& b) const noexcept
+		std::size_t operator()(const Board& b) const noexcept
 		{
 			srand(time(NULL));
 			constexpr int BOARD_POSITIONS = 64;
-			constexpr int NUMBER_PIECES = 4;
+			constexpr int PIECE_TYPES = 5;
 			//init zobrist
-			int table[BOARD_POSITIONS][NUMBER_PIECES];
+			int table[BOARD_POSITIONS][PIECE_TYPES];
 			for (int i = 0; i < BOARD_POSITIONS; i++) {
-				for (int j = 0; j < NUMBER_PIECES; j++) {
+				for (int j = 0; j < PIECE_TYPES; j++) {
 					table[i][j] = rand();
 				}
 			}

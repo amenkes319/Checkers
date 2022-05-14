@@ -22,18 +22,16 @@ void Board::ResetBoard() {
 	for (int i = 0; i < BOARD_SIZE; i++) {
 		for (int j = 0; j < BOARD_SIZE; j++) {
 			if (i < 3 && j % 2 != i % 2) {
-				m_board[i][j] = BLACK_KING;
+				m_board[i][j] = BLACK_PAWN;
 			}
 			else if (i >= 5 && j % 2 != i % 2) {
-				m_board[i][j] = RED_KING;
+				m_board[i][j] = RED_PAWN;
 			}
 			else {
 				m_board[i][j] = EMPTY;
 			}
 		}
 	}
-
-	RemovePiece({ 7, 2 });
 }
 
 // TODO: Add king'ing
@@ -66,7 +64,7 @@ std::unordered_set<Position> Board::PossibleJumps(const Position &start, Board &
 		for (int j = -2; j <= 2; j += 4) {
 			piece = board.At(start);
 			target = { start.row + i, start.col + j };
-			if ((Sign(piece) == i || Abs(piece) == KING) &&
+			if ((Sign(piece) == Sign(i) || Abs(piece) == KING) &&
 				IsValidPos(start.row + i, start.col + j) &&
 				board.At(target) == EMPTY &&
 				Sign(board.At(start.row + i/2, start.col + j/2)) == -Sign(piece))
@@ -79,6 +77,7 @@ std::unordered_set<Position> Board::PossibleJumps(const Position &start, Board &
 	return jumps;
 }
 
+/* Helper method for Jumps() */
 void Board::Jumps(std::unordered_set<Position>& jumps, const Position &start, Board &board) {
 	std::unordered_set<Position> moves = PossibleJumps(start, board);
 	if (!moves.empty()) {
@@ -86,7 +85,6 @@ void Board::Jumps(std::unordered_set<Position>& jumps, const Position &start, Bo
 			if (jumps.find(pos) == jumps.end()) { // pos hasn't been visited
 				Board newBoard(board);
 				newBoard.Move(start, pos, true);
-				newBoard.PrintBoard();
 				jumps.insert(pos);
 				Jumps(jumps, pos, newBoard);
 			}
@@ -94,6 +92,7 @@ void Board::Jumps(std::unordered_set<Position>& jumps, const Position &start, Bo
 	}
 }
 
+/* Possible Jumps*/
 std::unordered_set<Position> Board::Jumps(const Position& start) {
 	std::unordered_set<Position> jumps;
 	Jumps(jumps, start, *this);
@@ -130,11 +129,11 @@ std::unordered_set<Board> Board::LookAhead() {
 	return boards;
 }
 
-Piece Board::At(Position pos) {
+Piece Board::At(Position pos) const {
 	return m_board[pos.row][pos.col];
 }
 
-Piece Board::At(int row, int col) {
+Piece Board::At(int row, int col) const {
 	return m_board[row][col];
 }
 
