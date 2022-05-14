@@ -22,6 +22,7 @@ enum Piece {
 	RED_KING    = -KING
 };
 
+/* Enumeration to represent the coordinates of each piece on the board. */
 struct Position {
 	int row;
 	int col;
@@ -52,7 +53,7 @@ public:
 	}
 
 	/**
-	 * Move piece to target coordinates
+	 * Move piece to target coordinates.
 	 * @param piece Position of desired piece to move
 	 * @param target Position of the target to move the piece to
 	 * @param isJump True if the move is a jump
@@ -60,33 +61,72 @@ public:
 	void Move(const Position &piece, const Position &target, bool isJump = false);
 
 	/**
-	 * Reset positions of pieces
+	 * Reset positions of pieces.
 	 */
 	void ResetBoard();
 
 	/**
-	 * Finds all possible moves that can be made by the piece
+	 * Finds all possible moves that can be made by the piece.
 	 * @param piece Position of desired piece to move
 	 * @return vector of all possible positions the piece can move to
 	 */
-	std::unordered_set<Position> PossibleMoves(Position piece);
+	std::unordered_set<Position> PossibleMoves(const Position& start);
+
+	/**
+	 * Gets all possible jumps from the starting position.
+	 * @param start Position of the piece
+	 * @return Hash set of all positions the piece can jump to
+	 */
 	std::unordered_set<Position> Jumps(const Position& start);
-	
+
+	/**
+	 * 
+	 * @return 
+	 */
 	std::unordered_set<Board> LookAhead();
 
+	/**
+	 * Gets the piece at the given position.
+	 * @param pos Position of the wanted piece
+	 * @return Piece enum of which piece is at the given position
+	 */
 	Piece At(Position pos) const;
+
+	/**
+	 * Gets the piece at the given coordinates.
+	 * @param row Row of the wanted piece
+	 * @param col Column of the wanted piece
+	 * @return Piece enum of which piece is at the given coordinates
+	 */
 	Piece At(int row, int col) const;
 
 	void PrintBoard();
 
 private:
+	/**
+	 * Get all the single-jumps at the given position and board configuration.
+	 * @param start Starting position of the piece to test
+	 * @param board The configuration of the board
+	 * @return 
+	 */
 	std::unordered_set<Position> PossibleJumps(const Position &start, Board &board);
+
+	/**
+	 * Recursive helper function to go down the tree of possible multi-jumps.
+	 * @param so_far List of jumps discovered so far
+	 * @param start Starting position that changes with each recursive call
+	 * @param board The configuration of the board
+	 */
 	void Jumps(std::unordered_set<Position> &so_far, const Position &start, Board &board);
 
+	/**
+	 * Replace the targeted piece with an empty piece.
+	 * @param target Position of piece to remove
+	 */
 	void RemovePiece(const Position& target);
 
 	/**
-	 * Returns if the coords of the piece can move to the target
+	 * Returns if the coords of the piece can move to the target.
 	 * @param piece Position of desired piece to move
 	 * @param target Position of the target to move the piece to
 	 * @return true if the piece can move to the target
@@ -124,7 +164,14 @@ namespace std {
 			int h = 0;
 			int j;
 			for (int i = 0; i < BOARD_POSITIONS; i++) {
+
+#pragma warning( push )
+#pragma warning( disable : 26812 ) // suppress "use enum class over enum" warning
+
 				j = b.At(i / BOARD_SIZE, i % BOARD_SIZE);
+
+#pragma warning( pop )
+
 				h = h ^ table[i][j];
 			}
 			
