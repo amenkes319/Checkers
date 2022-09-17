@@ -97,12 +97,12 @@ std::unordered_set<Board> Board::LookAhead() {
 	return boards;
 }
 
-/*  */
+/* Get the piece at the given position */
 Piece Board::At(Position pos) const {
 	return m_board[pos.row][pos.col];
 }
 
-/*  */
+/* Get the piece at the given coordinates */
 Piece Board::At(int row, int col) const {
 	return m_board[row][col];
 }
