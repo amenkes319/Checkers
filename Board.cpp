@@ -29,7 +29,6 @@ void Board::Move(const Position& piece, const Position& target, bool isJump) {
 			RemovePiece(jumped);
 		}
 
-
 		// King'ing
 		if (target.row == 0 && m_board[target.row][target.col] == RED_PAWN) {
 			m_board[target.row][target.col] = RED_KING;
@@ -54,7 +53,7 @@ void Board::ResetBoard() {
 			}
 		}
 	}
-
+	m_board[2][1] = BLACK_KING;
 	RemovePiece({ 7, 2 });
 }
 
@@ -84,7 +83,7 @@ std::unordered_set<Position> Board::PossibleMoves(const Position &start) {
 	return moves;
 }
 
-/* Possible Jumps*/
+/* Possible Jumps */
 std::unordered_set<Position> Board::Jumps(const Position& start) {
 	std::unordered_set<Position> jumps;
 	Jumps(jumps, start, *this);
@@ -109,9 +108,10 @@ Piece Board::At(int row, int col) const {
 }
 
 void Board::PrintBoard() {
+	char p;
 	for (int i = 0; i < BOARD_SIZE; i++) {
 		for (int j = 0; j < BOARD_SIZE; j++) {
-			char p = '-';
+			p = '-';
 			switch (m_board[i][j]) {
 			case 1:
 				p = 'b';
