@@ -19,9 +19,18 @@ int main() {
 	bool blackTurn = true;
 	int row, col, tRow, tCol;
 	Position piecePos, targetPos;
-	std::unordered_set<Position> jumps;
+	std::unordered_map<Position, Position> moves;
 	b.PrintBoard();
 	while (1) {
+		if (b.GetBlackPieces() == 0) {
+			std::cout << "Red wins!" << std::endl;
+			break;
+		}
+		else if (b.GetRedPieces() == 0) {
+			std::cout << "Black wins!" << std::endl;
+			break;
+		}
+		
 		std::cout << "Enter " << (blackTurn ? "black" : "red") << " piece to move: ";
 		getline(std::cin, input);
 		if (!regex_match(input, match)) {
@@ -32,14 +41,10 @@ int main() {
 		row = input[0] - '0';
 		col = input[2] - '0';
 		piecePos = { row, col };
-		jumps = b.PossibleMoves(piecePos);
-		
-		for (auto jump : jumps) {
-			std::cout << jump << "Hash: " << std::hash<Position>()(jump) << std::endl;
-		}
 		
 		// Positive or negative depending on if black or red turn
 		if ((blackTurn ? 1 : -1) * b.At(row, col) > 0) {
+			moves = b.PossibleMoves(piecePos);
 			std::cout << "Valid piece" << std::endl;
 			blackTurn = !blackTurn;
 			do {
@@ -47,6 +52,12 @@ int main() {
 				getline(std::cin, input);
 
 				if (!regex_match(input, match)) {
+					// see if input is "back"
+					if (input == "back") {
+						blackTurn = !blackTurn;
+						break;
+					}
+					
 					continue;
 				}
 
@@ -54,14 +65,13 @@ int main() {
 				tCol = input[2] - '0';
 				targetPos = { tRow, tCol };
 				
-				std::cout << jumps.count(targetPos) << std::endl;
-				if (!jumps.count(targetPos)) {
+				if (!moves.count(targetPos)) {
 					std::cout << "Invalid target" << std::endl;
 				} else {
-					b.Move(piecePos, targetPos);
+					b.Move(piecePos, targetPos, moves, abs(tRow - row) > 1);
 					b.PrintBoard();
 				}
-			} while (!jumps.count(targetPos));
+			} while (!moves.count(targetPos));
 		} else {
 			std::cout << "Invalid piece" << std::endl;
 		}

@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <unordered_set>
+#include <unordered_map>
 #include <algorithm>
 #define BOARD_SIZE 8
 #define PAWN 1
@@ -27,8 +28,12 @@ struct Position {
 	int row;
 	int col;
 	
-	bool operator==(const Position& p) const {
+	bool operator==(const Position &p) const {
 		return this->row == p.row && this->col == p.col;
+	}
+
+	bool operator!=(const Position& p) const {
+		return !(*this == p);
 	}
 
 	friend std::ostream &operator<<(std::ostream& os, Position const& p) {
@@ -54,11 +59,12 @@ public:
 
 	/**
 	 * Move piece to target coordinates.
-	 * @param piece Position of desired piece to move
+	 * @param start Position of desired piece to move
 	 * @param target Position of the target to move the piece to
+	 * @param moves Map of all possible moves from start
 	 * @param isJump True if the move is a jump
 	 */
-	void Move(const Position &piece, const Position &target, bool isJump = false);
+	void Move(const Position &start, const Position &target, const std::unordered_map<Position, Position> moves, bool isJump = false);
 
 	/**
 	 * Reset positions of pieces.
@@ -68,19 +74,19 @@ public:
 	/**
 	 * Finds all possible moves that can be made by the piece.
 	 * @param piece Position of desired piece to move
-	 * @return vector of all possible positions the piece can move to
+	 * @return Hash map of all possible positions the piece can move to
 	 */
-	std::unordered_set<Position> PossibleMoves(const Position& start);
+	std::unordered_map<Position, Position> PossibleMoves(const Position& start);
 
 	/**
 	 * Gets all possible jumps from the starting position.
 	 * @param start Position of the piece
-	 * @return Hash set of all positions the piece can jump to
+	 * @return Hash map of all positions the piece can jump to
 	 */
-	std::unordered_set<Position> Jumps(const Position& start);
+	std::unordered_map<Position, Position> Jumps(const Position& start);
 
 	/**
-	 * 
+	 * TODO
 	 * @return 
 	 */
 	std::unordered_set<Board> LookAhead();
@@ -102,6 +108,18 @@ public:
 
 	void PrintBoard();
 
+	/**
+	 * Gets the number of black pieces on the board.
+	 * @return number of black pieces
+	 */
+	int GetBlackPieces() { return m_blackCounter; }
+
+	/**
+	 * Gets the number of red pieces on the board.
+	 * @return number of red pieces
+	 */
+	int GetRedPieces() { return m_redCounter; }
+
 private:
 	/**
 	 * Get all the single-jumps at the given position and board configuration.
@@ -109,15 +127,16 @@ private:
 	 * @param board The configuration of the board
 	 * @return 
 	 */
-	std::unordered_set<Position> PossibleJumps(const Position &start, Board &board);
+	std::unordered_map<Position, Position> PossibleJumps(const Position &start, Board &board);
 
 	/**
 	 * Recursive helper function to go down the tree of possible multi-jumps.
-	 * @param so_far List of jumps discovered so far
+	 * @param jumps Map of jumps discovered so far. Key = start position, value = end position
+	 *				Note: start and end position are always a single jump apart
 	 * @param start Starting position that changes with each recursive call
 	 * @param board The configuration of the board
 	 */
-	void Jumps(std::unordered_set<Position> &so_far, const Position &start, Board &board);
+	void Jumps(std::unordered_map<Position, Position> &jumps, const Position &start, Board &board);
 
 	/**
 	 * Replace the targeted piece with an empty piece.
@@ -134,6 +153,8 @@ private:
 	bool IsValidMove(const Position &piece, const Position &target);
 
 	Piece m_board[BOARD_SIZE][BOARD_SIZE];
+	int m_blackCounter;
+	int m_redCounter;
 };
 
 namespace std {

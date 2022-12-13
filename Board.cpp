@@ -16,26 +16,33 @@ Board::Board(Board& board) {
 			m_board[i][j] = board.m_board[i][j];
 		}
 	}
+	m_blackCounter = board.m_blackCounter;
+	m_redCounter = board.m_redCounter;
 }
 
 // TODO: Add proper jump
-void Board::Move(const Position& piece, const Position& target, bool isJump) {
-	if (IsValidMove(piece, target)) {
-		m_board[target.row][target.col] = m_board[piece.row][piece.col];
-		m_board[piece.row][piece.col] = EMPTY;
-
+void Board::Move(const Position& start, const Position& target, const std::unordered_map<Position, Position> moves, bool isJump) {
+	if (IsValidMove(start, target)) {
+		m_board[target.row][target.col] = m_board[start.row][start.col];
+		m_board[start.row][start.col] = EMPTY;
+		
 		if (isJump) {
-			// 3,2   7,2
-			// the row and column difference is the number of pieces that were jumped
-			// the row and column sign is the direction of the jump
-			// the loop iterates through each piece that was jumped and removes 
-			int rowDiff = Abs(piece.row - target.row);
-			int colDiff = Abs(piece.col - target.col);
-			int rowSign = Sign(piece.row - target.row);
-			int colSign = Sign(piece.col - target.col);
-			for (int i = 1; i < rowDiff; i++) {
-				m_board[piece.row + (i * rowSign)][piece.col + (i * colSign)] = EMPTY;
-			}
+			Position newPos = target; // position jumped to
+			Position prevPos; // position it jumped from
+			do {
+				prevPos = moves.at(newPos);
+				int jumpedRow = Avg(newPos.row, prevPos.row);
+				int jumpedCol = Avg(newPos.col, prevPos.col);
+				Position jumped = { jumpedRow, jumpedCol };
+				RemovePiece(jumped);
+				if (Sign(At(jumped)) == 1) {
+					m_blackCounter--;
+				} else {
+					m_redCounter--;
+				}
+				newPos = prevPos;
+				
+			} while (newPos != start);
 		}
 
 		// King'ing
@@ -47,28 +54,30 @@ void Board::Move(const Position& piece, const Position& target, bool isJump) {
 	}
 }
 
-/*  */
+/* Reset board */
 void Board::ResetBoard() {
+	m_blackCounter = 0;
+	m_redCounter = 0;
 	for (int i = 0; i < BOARD_SIZE; i++) {
 		for (int j = 0; j < BOARD_SIZE; j++) {
 			if (i < 3 && j % 2 != i % 2) {
 				m_board[i][j] = BLACK_PAWN;
+				m_blackCounter++;
 			}
 			else if (i >= 5 && j % 2 != i % 2) {
 				m_board[i][j] = RED_PAWN;
+				m_redCounter++;
 			}
 			else {
 				m_board[i][j] = EMPTY;
 			}
 		}
 	}
-	//m_board[2][1] = BLACK_KING;
-	RemovePiece({ 7, 2 });
 }
 
 /*  */
-std::unordered_set<Position> Board::PossibleMoves(const Position &start) {
-	std::unordered_set<Position> moves;
+std::unordered_map<Position, Position> Board::PossibleMoves(const Position &start) {
+	std::unordered_map<Position, Position> moves;
 
 	if (m_board[start.row][start.col] != EMPTY) {
 		Position target;
@@ -80,21 +89,21 @@ std::unordered_set<Position> Board::PossibleMoves(const Position &start) {
 					IsValid(start.row + i) && IsValid(start.col + j) &&
 					At(target) == EMPTY)
 				{
-					moves.insert(target);
+					moves.insert({ target, start });
 				}
 			}
 		}
 	}
 
-	std::unordered_set<Position> jumps = Jumps(start);
+	std::unordered_map<Position, Position> jumps = Jumps(start);
 	moves.insert(jumps.begin(), jumps.end());
 
 	return moves;
 }
 
 /* Possible Jumps */
-std::unordered_set<Position> Board::Jumps(const Position& start) {
-	std::unordered_set<Position> jumps;
+std::unordered_map<Position, Position> Board::Jumps(const Position& start) {
+	std::unordered_map<Position, Position> jumps;
 	Jumps(jumps, start, *this);
 	return jumps;
 }
@@ -118,7 +127,10 @@ Piece Board::At(int row, int col) const {
 
 void Board::PrintBoard() {
 	char p;
+	std::cout << "   0 1 2 3 4 5 6 7" << std::endl;
+	std::cout << "  ________________" << std::endl;
 	for (int i = 0; i < BOARD_SIZE; i++) {
+		std::cout << i << " |";
 		for (int j = 0; j < BOARD_SIZE; j++) {
 			p = '-';
 			switch (m_board[i][j]) {
@@ -136,31 +148,30 @@ void Board::PrintBoard() {
 				break;
 			}
 
-			std::cout << p;
+			std::cout << p << " ";
 		}
 		std::cout << std::endl;
 	}
-	std::cout << std::endl;
 }
 
 /* Private helper method for Jumps() */
-void Board::Jumps(std::unordered_set<Position>& jumps, const Position& start, Board& board) {
-	std::unordered_set<Position> moves = PossibleJumps(start, board);
+void Board::Jumps(std::unordered_map<Position, Position>& jumps, const Position& start, Board& board) {
+	std::unordered_map<Position, Position> moves = PossibleJumps(start, board);
 	if (!moves.empty()) {
 		for (const auto& pos : moves) {
-			if (jumps.find(pos) == jumps.end()) { // pos hasn't been visited
+			if (jumps.find(pos.first) == jumps.end()) { // pos hasn't been visited
 				Board newBoard(board);
-				newBoard.Move(start, pos, true);
+				newBoard.Move(start, pos.first, moves, true);
 				jumps.insert(pos);
-				Jumps(jumps, pos, newBoard);
+				Jumps(jumps, pos.first, newBoard);
 			}
 		}
 	}
 }
 
 /* Single jumps */
-std::unordered_set<Position> Board::PossibleJumps(const Position& start, Board& board) {
-	std::unordered_set<Position> jumps;
+std::unordered_map<Position, Position> Board::PossibleJumps(const Position& start, Board& board) {
+	std::unordered_map<Position, Position> jumps;
 
 	Position target;
 	Piece piece;
@@ -173,7 +184,7 @@ std::unordered_set<Position> Board::PossibleJumps(const Position& start, Board& 
 				board.At(target) == EMPTY &&
 				Sign(board.At(start.row + i / 2, start.col + j / 2)) == -Sign(piece))
 			{
-				jumps.insert(target);
+				jumps.insert({ target, start });
 			}
 		}
 	}
@@ -189,6 +200,6 @@ void Board::RemovePiece(const Position& target) {
 /*  */
 bool Board::IsValidMove(const Position& piece, const Position& target) {
 	return true;
-	std::unordered_set<Position> moves = PossibleMoves(piece);
+	std::unordered_map<Position, Position> moves = PossibleMoves(piece);
 	return moves.find(target) != moves.end();
 }
