@@ -14,7 +14,7 @@ int main() {
 //		std::cout << jump << std::endl;
 //	}
 
-	std::regex match ("([0-7] [0-7])|([0-7],[0-7])");
+	std::regex match("([0-7](,|\\s)[0-7])");
 	std::string input;
 	bool blackTurn = true;
 	int row, col, tRow, tCol;
@@ -35,7 +35,7 @@ int main() {
 		jumps = b.PossibleMoves(piecePos);
 		
 		for (auto jump : jumps) {
-			std::cout << jump << std::endl;
+			std::cout << jump << "Hash: " << std::hash<Position>()(jump) << std::endl;
 		}
 		
 		// Positive or negative depending on if black or red turn
@@ -51,19 +51,17 @@ int main() {
 				}
 
 				tRow = input[0] - '0';
-				tCol = input[0] - '0';
+				tCol = input[2] - '0';
 				targetPos = { tRow, tCol };
-
-				// TODO: fix targetPos not counted
+				
 				std::cout << jumps.count(targetPos) << std::endl;
 				if (!jumps.count(targetPos)) {
 					std::cout << "Invalid target" << std::endl;
-					continue;
+				} else {
+					b.Move(piecePos, targetPos);
+					b.PrintBoard();
 				}
-
-				b.Move(piecePos, targetPos);
-				b.PrintBoard();
-			} while (1);
+			} while (!jumps.count(targetPos));
 		} else {
 			std::cout << "Invalid piece" << std::endl;
 		}

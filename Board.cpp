@@ -18,15 +18,24 @@ Board::Board(Board& board) {
 	}
 }
 
-// TODO: Add king'ing
+// TODO: Add proper jump
 void Board::Move(const Position& piece, const Position& target, bool isJump) {
 	if (IsValidMove(piece, target)) {
 		m_board[target.row][target.col] = m_board[piece.row][piece.col];
 		m_board[piece.row][piece.col] = EMPTY;
 
 		if (isJump) {
-			Position jumped = { Avg(piece.row, target.row), Avg(piece.col, target.col) };
-			RemovePiece(jumped);
+			// 3,2   7,2
+			// the row and column difference is the number of pieces that were jumped
+			// the row and column sign is the direction of the jump
+			// the loop iterates through each piece that was jumped and removes 
+			int rowDiff = Abs(piece.row - target.row);
+			int colDiff = Abs(piece.col - target.col);
+			int rowSign = Sign(piece.row - target.row);
+			int colSign = Sign(piece.col - target.col);
+			for (int i = 1; i < rowDiff; i++) {
+				m_board[piece.row + (i * rowSign)][piece.col + (i * colSign)] = EMPTY;
+			}
 		}
 
 		// King'ing
@@ -53,7 +62,7 @@ void Board::ResetBoard() {
 			}
 		}
 	}
-	m_board[2][1] = BLACK_KING;
+	//m_board[2][1] = BLACK_KING;
 	RemovePiece({ 7, 2 });
 }
 
