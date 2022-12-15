@@ -1,6 +1,1 @@
-﻿  Board.cpp
-C:\Users\amenk\source\repos\Checkers\Board.h(174,14): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-  Main.cpp
-C:\Users\amenk\source\repos\Checkers\Board.h(174,14): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-  Generating Code...
-  Checkers.vcxproj -> C:\Users\amenk\source\repos\Checkers\Debug\Checkers.exe
+﻿

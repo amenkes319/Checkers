@@ -20,7 +20,6 @@ Board::Board(Board& board) {
 	m_redCounter = board.m_redCounter;
 }
 
-// TODO: Add proper jump
 void Board::Move(const Position& start, const Position& target, const std::unordered_map<Position, Position> moves, bool isJump) {
 	if (IsValidMove(start, target)) {
 		m_board[target.row][target.col] = m_board[start.row][start.col];

@@ -68,7 +68,7 @@ int main() {
 				if (!moves.count(targetPos)) {
 					std::cout << "Invalid target" << std::endl;
 				} else {
-					b.Move(piecePos, targetPos, moves, abs(tRow - row) > 1);
+					b.Move(piecePos, targetPos, moves, abs(tRow - row) > 1 || abs(tCol - col) > 1);
 					b.PrintBoard();
 				}
 			} while (!moves.count(targetPos));
