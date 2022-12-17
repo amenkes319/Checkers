@@ -46,7 +46,7 @@ class Board
 {
 public:
 	Board();
-	Board(Board &board);
+	Board(const Board &board);
 
 	bool operator==(const Board& b) const {
 		for (int i = 0; i < BOARD_SIZE; i++) {
@@ -65,7 +65,7 @@ public:
 	 * @param isJump True if the move is a jump
 	 */
 	void Move(const Position &start, const Position &target, const std::unordered_map<Position, Position> moves, bool isJump = false);
-
+	
 	/**
 	 * Reset positions of pieces.
 	 */
@@ -86,10 +86,10 @@ public:
 	std::unordered_map<Position, Position> Jumps(const Position& start);
 
 	/**
-	 * TODO
-	 * @return 
+	 * Look Ahead to determine the best possible move
+	 * @return pair of positions where the first position is the start and the second is the target
 	 */
-	std::unordered_set<Board> LookAhead();
+	std::pair<std::pair<Position, Position>, int> LookAhead(int depth, int alpha, int beta, bool maximize);
 
 	/**
 	 * Gets the piece at the given position.
@@ -151,6 +151,10 @@ private:
 	 * @return true if the piece can move to the target
 	 */
 	bool IsValidMove(const Position &piece, const Position &target);
+
+	int Score();
+
+	bool IsQuiescent();
 
 	Piece m_board[BOARD_SIZE][BOARD_SIZE];
 	int m_blackCounter;
