@@ -14,18 +14,17 @@ Board::Board(const Board& board) {
 	m_redCounter = board.m_redCounter;
 }
 
-void Board::Move(const Position& start, const Position& target, const std::unordered_map<Position, Position> moves, bool isJump) {
-	m_board[target.row][target.col] = m_board[start.row][start.col];
-	m_board[start.row][start.col] = EMPTY;
-		
+void Board::Move(Piece &start, Piece &target, const std::unordered_map<Piece, Piece> moves, bool isJump) {
+	target.SetType(start.GetType());
+	start.SetType(EMPTY);
+
 	if (isJump) {
-		Position newPos = target; // position jumped to
-		Position prevPos; // position it jumped from
+		Piece newPos = target; // piece jumped to
 		do {
-			prevPos = moves.at(newPos);
-			int jumpedRow = Avg(newPos.row, prevPos.row);
-			int jumpedCol = Avg(newPos.col, prevPos.col);
-			Position jumped = { jumpedRow, jumpedCol };
+			Piece prevPos = moves.at(newPos);
+			int jumpedRow = Avg(newPos.GetPosition().row, prevPos.GetPosition().row);
+			int jumpedCol = Avg(newPos.GetPosition().col, prevPos.GetPosition().col);
+			Piece jumped = At(jumpedRow, jumpedCol);
 			RemovePiece(jumped);
 			newPos = prevPos;
 				
@@ -33,10 +32,10 @@ void Board::Move(const Position& start, const Position& target, const std::unord
 	}
 
 	// King'ing
-	if (target.row == 0 && m_board[target.row][target.col] == RED_PAWN) {
-		m_board[target.row][target.col] = RED_KING;
-	} else if (target.row == BOARD_SIZE - 1 && m_board[target.row][target.col] == BLACK_PAWN) {
-		m_board[target.row][target.col] = BLACK_KING;
+	if (target.GetPosition().row == 0 && target.GetType() == RED_PAWN) {
+		target.SetType(RED_KING);
+	} else if (target.GetPosition().row == BOARD_SIZE - 1 && target.GetType() == BLACK_PAWN) {
+		target.SetType(BLACK_KING);
 	}
 }
 
@@ -47,15 +46,17 @@ void Board::ResetBoard() {
 	for (int i = 0; i < BOARD_SIZE; i++) {
 		for (int j = 0; j < BOARD_SIZE; j++) {
 			if (i < 3 && j % 2 != i % 2) {
-				m_board[i][j] = BLACK_PAWN;
+
+				// initialize m_board[i][j]
+				m_board[i][j] = Piece(BLACK_PAWN, i, j);
 				m_blackCounter++;
 			}
 			else if (i >= 5 && j % 2 != i % 2) {
-				m_board[i][j] = RED_PAWN;
+				m_board[i][j] = Piece(RED_PAWN, i, j);
 				m_redCounter++;
 			}
 			else {
-				m_board[i][j] = EMPTY;
+				m_board[i][j] = Piece(EMPTY, i, j);
 			}
 		}
 	}
@@ -113,7 +114,7 @@ void Board::PrintBoard() {
 		std::cout << i << " |";
 		for (int j = 0; j < BOARD_SIZE; j++) {
 			p = '-';
-			switch (m_board[i][j]) {
+			switch (m_board[i][j].GetType()) {
 			case 1:
 				p = 'b';
 				break;
@@ -173,12 +174,12 @@ std::unordered_map<Position, Position> Board::PossibleJumps(const Position& star
 }
 
 /*  */
-void Board::RemovePiece(const Position& target) {
-	if (Sign(At(target)) == BLACK) {
+void Board::RemovePiece(Piece& target) {
+	if (Sign(target.GetType()) == BLACK) {
 		m_blackCounter--;
 	}
-	else {
+	else if (Sign(target.GetType()) == RED) {
 		m_redCounter--;
 	}
-	m_board[target.row][target.col] = EMPTY;
+	target.SetType(EMPTY);
 }

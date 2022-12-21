@@ -7,48 +7,15 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <algorithm>
+#include "Piece.h"
 
 #define BOARD_SIZE 8
-#define PAWN  1
-#define KING  2
-#define BLACK 1
-#define RED  -1
 
 #define IsValid(index) ( index >= 0 && index < BOARD_SIZE )
 #define IsValidPos(row, col) ( IsValid(row) && IsValid(col) )
 #define Abs(n) ( n < 0 ? -n : n )
 #define Sign(n) ( (0 < n) - (n < 0) )
 #define Avg(x, y) ( (x + y) / 2 )
-
-/**
- * Enumeration to represent the possible states of a square of the board
- * Black pieces are positive, reds are negative
- */
-enum Piece {
-	EMPTY      =  0,
-	BLACK_PAWN =  PAWN,
-	BLACK_KING =  KING,
-	RED_PAWN   = -PAWN,
-	RED_KING   = -KING
-};
-
-/* Enumeration to represent the coordinates of each piece on the board. */
-struct Position {
-	int row;
-	int col;
-	
-	bool operator==(const Position &p) const {
-		return this->row == p.row && this->col == p.col;
-	}
-
-	bool operator!=(const Position& p) const {
-		return !(*this == p);
-	}
-
-	friend std::ostream &operator<<(std::ostream& os, Position const& p) {
-		return os << p.row << ", " << p.col;
-	}
-};
 
 /* Represent a configuration of a checkers board */
 class Board {
@@ -67,12 +34,12 @@ public:
 
 	/**
 	 * Move piece to target coordinates.
-	 * @param start Position of desired piece to move
-	 * @param target Position of the target to move the piece to
+	 * @param start Desired piece to move
+	 * @param target Target to move the piece to
 	 * @param moves Map of all possible moves from start
 	 * @param isJump True if the move is a jump
 	 */
-	void Move(const Position &start, const Position &target, const std::unordered_map<Position, Position> moves, bool isJump = false);
+	void Move(Piece &start, Piece &target, const std::unordered_map<Piece, Piece> moves, bool isJump = false);
 	
 	/**
 	 * Reset positions of pieces.
@@ -142,9 +109,9 @@ private:
 
 	/**
 	 * Replace the targeted piece with an empty piece.
-	 * @param target Position of piece to remove
+	 * @param target Piece to remove
 	 */
-	void RemovePiece(const Position& target);
+	void RemovePiece(Piece& target);
 
 	Piece m_board[BOARD_SIZE][BOARD_SIZE];
 	int m_blackCounter;
@@ -179,7 +146,7 @@ namespace std {
 			int h = 0;
 			int j;
 			for (int i = 0; i < BOARD_POSITIONS; i++) {
-				j = b.At(i / BOARD_SIZE, i % BOARD_SIZE);
+				j = b.At(i / BOARD_SIZE, i % BOARD_SIZE).GetType();
 				h = h ^ table[i][j];
 			}
 			
