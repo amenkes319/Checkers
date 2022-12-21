@@ -141,23 +141,15 @@ bool AI::IsQuiescent(const Board& board) {
 	return true;
 }
 
-bool AI::IsKingTrapped(const Board& board, Position pos) {
-	return IsKingTrapped(board, pos.row, pos.col);
-}
-
-bool AI::IsKingTrapped(const Board& board, int r, int c) {
+bool AI::IsKingTrapped(const Board& board, Piece piece) {
 	// get possible moves for piece
-	Piece piece = board.At(r, c);
 	auto moves = board.PossibleMoves(piece);
 	if (!moves.empty()) {
 		return false;
 	}
 
 	// If the king has no legal moves, check if any friendly pieces can
-    // capture the enemy pieces surrounding the king.
+	// capture the enemy pieces surrounding the king.
 	//Piece enemy = -1 * board.At(r, c);
-		
+
 }
-
-
-// TODO: Combine piece and position

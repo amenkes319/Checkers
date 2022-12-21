@@ -31,14 +31,11 @@ private:
 	 *
 	 * @return true if the king at the given position is trapped by enemy pieces
 	 */
-	bool IsKingTrapped(const Board& board, int r, int c);
-	bool IsKingTrapped(const Board& board, Position pos);
-
-	bool ClearPathToKing(const Board& board, int r, int c);
-	bool ClearPathToKing(const Board& board, Position pos);
-
-	int GetPieceProtection(const Board& board, int r, int c);
-	int GetPieceProtection(const Board& board, Position pos);
+	bool IsKingTrapped(const Board& board, Piece piece);
+	
+	bool ClearPathToKing(const Board& board, Piece piece);
+	
+	int GetPieceProtection(const Board& board, Piece piece);
 };
 
 #endif
