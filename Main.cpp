@@ -13,7 +13,7 @@ int main() {
 	bool blackTurn = true;
 	bool comp = true;
 	int row, col, tRow, tCol;
-	Position startPos, targetPos;
+	Piece start, target;
 	std::unordered_map<Position, Position> moves;
 	AI ai;
 	
@@ -33,12 +33,12 @@ int main() {
 
 		if (comp && !blackTurn) {
 			auto aiMove = ai.LookAhead(board ,DIFFICULTY * 2, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), blackTurn);
-			startPos = aiMove.first.second;
-			targetPos = aiMove.first.first;
-			moves = board.PossibleMoves(startPos);
+			start = board.At(aiMove.first.second);
+			target = board.At(aiMove.first.first);
+			moves = board.PossibleMoves(start);
 
 			std::cout << "******************" << std::endl;
-			std::cout << "AI move: " << startPos << " --> " << targetPos << ", score: " << aiMove.second << std::endl;
+			std::cout << "AI move: " << start.GetPosition() << " --> " << target.GetPosition() << ", score: " << aiMove.second << std::endl;
 			std::cout << "******************" << std::endl;
 		}
 		else {
@@ -51,11 +51,11 @@ int main() {
 			// char to int
 			row = input[0] - '0';
 			col = input[2] - '0';
-			startPos = { row, col };
+			start = board.At(row, col);
 
 			// Positive or negative depending on if black or red turn
-			if ((blackTurn ? 1 : -1) * board.At(row, col) > 0) {
-				moves = board.PossibleMoves(startPos);
+			if ((blackTurn ? 1 : -1) * board.At(row, col).GetType() > 0) {
+				moves = board.PossibleMoves(start);
 				std::cout << "Valid piece" << std::endl;
 				do {
 					std::cout << "Enter target: ";
@@ -72,21 +72,22 @@ int main() {
 
 					tRow = input[0] - '0';
 					tCol = input[2] - '0';
-					targetPos = { tRow, tCol };
-
-					if (!moves.count(targetPos)) {
+					target = board.At(tRow, tCol);
+					
+					if (!moves.count(target.GetPosition())) {
 						std::cout << "Invalid target" << std::endl;
 					}/* else {
 						b.Move(startPos, targetPos, moves, abs(targetPos.row - startPos.row) > 1 || abs(targetPos.col - startPos.col) > 1);
 						b.PrintBoard();
 					}*/
-				} while (!moves.count(targetPos));
+				} while (!moves.count(target.GetPosition()));
 			}
 			else {
 				std::cout << "Invalid piece" << std::endl;
 			}
 		}
-		board.Move(startPos, targetPos, moves, abs(targetPos.row - startPos.row) > 1 || abs(targetPos.col - startPos.col) > 1);
+		bool jump = abs(target.GetRow() - start.GetRow()) > 1 || abs(target.GetCol() - start.GetCol()) > 1;
+		board.Move(start, target, moves, jump);
 		board.PrintBoard();
 		blackTurn = !blackTurn;
 		

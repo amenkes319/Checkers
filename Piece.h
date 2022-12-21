@@ -49,6 +49,8 @@ public:
 
 	Type GetType() const { return m_type; }
 	Position GetPosition() const { return m_position; }
+	int GetRow() const { return m_position.row; }
+	int GetCol() const { return m_position.col; }
 
 	void SetType(Type type) { m_type = type; }
 	void SetPosition(Position position) { m_position = position; }

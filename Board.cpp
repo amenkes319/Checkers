@@ -17,24 +17,26 @@ Board::Board(const Board& board) {
 void Board::Move(Piece &start, Piece &target, const std::unordered_map<Position, Position> moves, bool isJump) {
 	target.SetType(start.GetType());
 	start.SetType(EMPTY);
+	m_board[target.GetRow()][target.GetCol()] = target;
+	m_board[start.GetRow()][start.GetCol()] = start;
 
 	if (isJump) {
 		Piece newPos = target; // piece jumped to
 		do {
 			Piece prevPos = At(moves.at(newPos.GetPosition()));
-			int jumpedRow = Avg(newPos.GetPosition().row, prevPos.GetPosition().row);
-			int jumpedCol = Avg(newPos.GetPosition().col, prevPos.GetPosition().col);
+			int jumpedRow = Avg(newPos.GetRow(), prevPos.GetRow());
+			int jumpedCol = Avg(newPos.GetCol(), prevPos.GetCol());
 			Piece jumped = At(jumpedRow, jumpedCol);
 			RemovePiece(jumped);
 			newPos = prevPos;
 				
-		} while (newPos != start);
+		} while (newPos.GetPosition() != start.GetPosition());
 	}
 
 	// King'ing
-	if (target.GetPosition().row == 0 && target.GetType() == RED_PAWN) {
+	if (target.GetRow() == 0 && target.GetType() == RED_PAWN) {
 		target.SetType(RED_KING);
-	} else if (target.GetPosition().row == BOARD_SIZE - 1 && target.GetType() == BLACK_PAWN) {
+	} else if (target.GetRow() == BOARD_SIZE - 1 && target.GetType() == BLACK_PAWN) {
 		target.SetType(BLACK_KING);
 	}
 }
@@ -70,11 +72,10 @@ std::unordered_map<Position, Position> Board::PossibleMoves(const Piece &start) 
 		Position targetPos;
 		for (int i = -1; i <= 1; i += 2) {
 			for (int j = -1; j <= 1; j += 2) {
-				targetPos = { start.GetPosition().row + i, start.GetPosition().col + j };
+				targetPos = { start.GetRow() + i, start.GetCol() + j};
 				if ((start.GetType() == i || // pawn only moves up or down
-					Abs(start.GetType()) == KING) && // king can do both
-					IsValid(start.GetPosition().row + i) &&
-					IsValid(start.GetPosition().col + j) &&
+					abs(start.GetType()) == KING) && // king can do both
+					IsValid(start.GetRow() + i) && IsValid(start.GetCol() + j) &&
 					At(targetPos).GetType() == EMPTY)
 				{
 					moves.insert({ targetPos, start.GetPosition()});
@@ -159,11 +160,12 @@ std::unordered_map<Position, Position> Board::PossibleJumps(const Piece& start) 
 	Piece target;
 	for (int i = -2; i <= 2; i += 4) {
 		for (int j = -2; j <= 2; j += 4) {
-			target = At(start.GetPosition().row + i, start.GetPosition().col + j);
-			if ((Sign(start.GetType()) == Sign(i) || Abs(start.GetType()) == KING) &&
-				IsValidPos(target.GetPosition().row, target.GetPosition().col) &&
-				target.GetType()  == EMPTY &&
-				Sign(At(target.GetPosition().row / 2, target.GetPosition().col / 2).GetType()) == -Sign(start.GetType()))
+			if (!IsValidPos(start.GetRow() + i, start.GetCol() + j)) continue;
+			
+			target = At(start.GetRow() + i, start.GetCol() + j);
+			if ((Sign(start.GetType()) == Sign(i) || abs(start.GetType()) == KING) &&
+				target.GetType() == EMPTY &&
+				Sign(At(Avg(target.GetRow(), start.GetRow()), Avg(target.GetCol(), start.GetRow())).GetType()) == -Sign(start.GetType()))
 			{
 				jumps.insert({ target.GetPosition(), start.GetPosition() });
 			}
@@ -182,4 +184,5 @@ void Board::RemovePiece(Piece& target) {
 		m_redCounter--;
 	}
 	target.SetType(EMPTY);
+	m_board[target.GetRow()][target.GetCol()] = target;
 }

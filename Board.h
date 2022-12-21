@@ -13,7 +13,6 @@
 
 #define IsValid(index) ( index >= 0 && index < BOARD_SIZE )
 #define IsValidPos(row, col) ( IsValid(row) && IsValid(col) )
-#define Abs(n) ( n < 0 ? -n : n )
 #define Sign(n) ( (0 < n) - (n < 0) )
 #define Avg(x, y) ( (x + y) / 2 )
 

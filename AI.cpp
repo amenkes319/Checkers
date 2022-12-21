@@ -155,7 +155,7 @@ bool AI::IsKingTrapped(const Board& board, int r, int c) {
 
 	// If the king has no legal moves, check if any friendly pieces can
     // capture the enemy pieces surrounding the king.
-	Piece enemy = -1 * board.At(r, c);
+	//Piece enemy = -1 * board.At(r, c);
 		
 }
 
