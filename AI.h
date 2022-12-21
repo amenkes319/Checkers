@@ -4,6 +4,7 @@
 #define AI_H
 
 #include "Board.h"
+#include "Piece.h"
 
 class AI {
 public:

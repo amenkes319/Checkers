@@ -14,14 +14,14 @@ Board::Board(const Board& board) {
 	m_redCounter = board.m_redCounter;
 }
 
-void Board::Move(Piece &start, Piece &target, const std::unordered_map<Piece, Piece> moves, bool isJump) {
+void Board::Move(Piece &start, Piece &target, const std::unordered_map<Position, Position> moves, bool isJump) {
 	target.SetType(start.GetType());
 	start.SetType(EMPTY);
 
 	if (isJump) {
 		Piece newPos = target; // piece jumped to
 		do {
-			Piece prevPos = moves.at(newPos);
+			Piece prevPos = At(moves.at(newPos.GetPosition()));
 			int jumpedRow = Avg(newPos.GetPosition().row, prevPos.GetPosition().row);
 			int jumpedCol = Avg(newPos.GetPosition().col, prevPos.GetPosition().col);
 			Piece jumped = At(jumpedRow, jumpedCol);
@@ -63,21 +63,21 @@ void Board::ResetBoard() {
 }
 
 /*  */
-std::unordered_map<Position, Position> Board::PossibleMoves(const Position &start) {
+std::unordered_map<Position, Position> Board::PossibleMoves(const Piece &start) const {
 	std::unordered_map<Position, Position> moves;
-	Piece startPiece = At(start.row, start.col);
 
-	if (startPiece != EMPTY) {
-		Position target;
+	if (start.GetType() != EMPTY) {
+		Position targetPos;
 		for (int i = -1; i <= 1; i += 2) {
 			for (int j = -1; j <= 1; j += 2) {
-				target = { start.row + i, start.col + j };
-				if ((startPiece == i || // pawn only moves up or down
-					Abs(startPiece) == KING) && // king can do both
-					IsValid(start.row + i) && IsValid(start.col + j) &&
-					At(target) == EMPTY)
+				targetPos = { start.GetPosition().row + i, start.GetPosition().col + j };
+				if ((start.GetType() == i || // pawn only moves up or down
+					Abs(start.GetType()) == KING) && // king can do both
+					IsValid(start.GetPosition().row + i) &&
+					IsValid(start.GetPosition().col + j) &&
+					At(targetPos).GetType() == EMPTY)
 				{
-					moves.insert({ target, start });
+					moves.insert({ targetPos, start.GetPosition()});
 				}
 			}
 		}
@@ -90,9 +90,9 @@ std::unordered_map<Position, Position> Board::PossibleMoves(const Position &star
 }
 
 /* Possible Jumps */
-std::unordered_map<Position, Position> Board::Jumps(const Position& start) {
+std::unordered_map<Position, Position> Board::Jumps(const Piece &start) const {
 	std::unordered_map<Position, Position> jumps;
-	Jumps(jumps, start, *this);
+	Jumps(jumps, start);
 	return jumps;
 }
 
@@ -136,36 +136,36 @@ void Board::PrintBoard() {
 }
 
 /* Private helper method for Jumps() */
-void Board::Jumps(std::unordered_map<Position, Position>& jumps, const Position& start, const Board& board) {
-	std::unordered_map<Position, Position> moves = PossibleJumps(start, board);
+void Board::Jumps(std::unordered_map<Position, Position>& jumps, const Piece &start) const {
+	std::unordered_map<Position, Position> moves = PossibleJumps(start);
 	if (!moves.empty()) {
 		for (const auto& pos : moves) {
 			if (jumps.find(pos.first) == jumps.end()) { // pos hasn't been visited
-				Board newBoard(board);
-				newBoard.Move(start, pos.first, moves, true);
+				Board newBoard(*this);
+				Piece newStart = newBoard.At(start.GetPosition());
+				Piece newTarget = newBoard.At(pos.first);
+				newBoard.Move(newStart, newTarget, moves, true);
 				jumps.insert(pos);
-				Jumps(jumps, pos.first, newBoard);
+				Jumps(jumps, newTarget);
 			}
 		}
 	}
 }
 
 /* Single jumps */
-std::unordered_map<Position, Position> Board::PossibleJumps(const Position& start, const Board& board) {
+std::unordered_map<Position, Position> Board::PossibleJumps(const Piece& start) const {
 	std::unordered_map<Position, Position> jumps;
 
-	Position target;
-	Piece piece;
+	Piece target;
 	for (int i = -2; i <= 2; i += 4) {
 		for (int j = -2; j <= 2; j += 4) {
-			piece = board.At(start);
-			target = { start.row + i, start.col + j };
-			if ((Sign(piece) == Sign(i) || Abs(piece) == KING) &&
-				IsValidPos(start.row + i, start.col + j) &&
-				board.At(target) == EMPTY &&
-				Sign(board.At(start.row + i / 2, start.col + j / 2)) == -Sign(piece))
+			target = At(start.GetPosition().row + i, start.GetPosition().col + j);
+			if ((Sign(start.GetType()) == Sign(i) || Abs(start.GetType()) == KING) &&
+				IsValidPos(target.GetPosition().row, target.GetPosition().col) &&
+				target.GetType()  == EMPTY &&
+				Sign(At(target.GetPosition().row / 2, target.GetPosition().col / 2).GetType()) == -Sign(start.GetType()))
 			{
-				jumps.insert({ target, start });
+				jumps.insert({ target.GetPosition(), start.GetPosition() });
 			}
 		}
 	}

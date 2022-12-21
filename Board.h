@@ -39,7 +39,7 @@ public:
 	 * @param moves Map of all possible moves from start
 	 * @param isJump True if the move is a jump
 	 */
-	void Move(Piece &start, Piece &target, const std::unordered_map<Piece, Piece> moves, bool isJump = false);
+	void Move(Piece &start, Piece &target, const std::unordered_map<Position, Position> moves, bool isJump = false);
 	
 	/**
 	 * Reset positions of pieces.
@@ -51,14 +51,14 @@ public:
 	 * @param piece Position of desired piece to move
 	 * @return Hash map of all possible positions the piece can move to
 	 */
-	std::unordered_map<Position, Position> PossibleMoves(const Position& start) const;
+	std::unordered_map<Position, Position> PossibleMoves(const Piece& start) const;
 
 	/**
 	 * Gets all possible jumps from the starting position.
 	 * @param start Position of the piece
 	 * @return Hash map of all positions the piece can jump to
 	 */
-	std::unordered_map<Position, Position> Jumps(const Position& start);
+	std::unordered_map<Position, Position> Jumps(const Piece& start) const;
 
 	/**
 	 * Gets the piece at the given position.
@@ -94,18 +94,18 @@ private:
 	 * Get all the single-jumps at the given position and board configuration.
 	 * @param start Starting position of the piece to test
 	 * @param board The configuration of the board
-	 * @return 
+	 * @return All single jumps from start position
 	 */
-	std::unordered_map<Position, Position> PossibleJumps(const Position &start, const Board &board);
+	std::unordered_map<Position, Position> PossibleJumps(const Piece &start) const;
 
 	/**
 	 * Recursive helper function to go down the tree of possible multi-jumps.
 	 * @param jumps Map of jumps discovered so far. Key = start position, value = end position
 	 *				Note: start and end position are always a single jump apart
-	 * @param start Starting position that changes with each recursive call
+	 * @param start Starting piece that changes with each recursive call
 	 * @param board The configuration of the board
 	 */
-	void Jumps(std::unordered_map<Position, Position> &jumps, const Position &start, const Board &board);
+	void Jumps(std::unordered_map<Position, Position> &jumps, const Piece &start) const;
 
 	/**
 	 * Replace the targeted piece with an empty piece.

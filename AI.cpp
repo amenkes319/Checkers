@@ -33,14 +33,14 @@ std::pair<std::pair<Position, Position>, int> AI::LookAhead(const Board &board, 
 	// Iterate through all possible moves
 	for (int i = 0; i < BOARD_SIZE; i++) {
 		for (int j = 0; j < BOARD_SIZE; j++) {
-			Position currPos = { i, j };
+			Piece piece = board.At(i, j);
 			if (maximize) {
-				if (Sign(board.At(currPos)) != Sign(BLACK_PAWN)) {
+				if (Sign(piece.GetType()) != Sign(BLACK_PAWN)) {
 					continue;
 				}
 			}
 			else {
-				if (Sign(board.At(currPos)) != Sign(RED_PAWN)) {
+				if (Sign(piece.GetType()) != Sign(RED_PAWN)) {
 					continue;
 				}
 			}
@@ -48,13 +48,15 @@ std::pair<std::pair<Position, Position>, int> AI::LookAhead(const Board &board, 
 			//std::cout << "Depth: " << depth << std::endl;
 
 			// Find all possible moves for the current pos
-			auto moves = board.PossibleMoves(currPos);
+			auto moves = board.PossibleMoves(piece);
 
 			// Iterate through all possible moves
 			for (auto& move : moves) {
 				// Make the move on a copy of the current board
 				Board copy(board);
-				copy.Move(move.first, move.second, moves);
+				Piece start = copy.At(move.first);
+				Piece target = copy.At(move.second);
+				copy.Move(start, target, moves);
 
 				int score;
 				// Check if the board position has been evaluated before
@@ -105,7 +107,7 @@ int AI::Heuristic(const Board &board) {
 	for (int i = 0; i < BOARD_SIZE; i++) {
 		for (int j = 0; j < BOARD_SIZE; j++) {
 			Piece piece = board.At(i, j);
-			switch (piece) {
+			switch (piece.GetType()) {
 			case BLACK_PAWN:
 				score += 5;
 				break;
@@ -131,7 +133,7 @@ bool AI::IsQuiescent(const Board& board) {
 	for (int i = 0; i < BOARD_SIZE; i++) {
 		for (int j = 0; j < BOARD_SIZE; j++) {
 			Piece piece = board.At(i, j);
-			if (piece != EMPTY && !board.PossibleMoves({ i, j }).empty()) {
+			if (piece.GetType() != EMPTY && !board.PossibleMoves(piece).empty()) {
 				return false;
 			}
 		}
@@ -145,7 +147,8 @@ bool AI::IsKingTrapped(const Board& board, Position pos) {
 
 bool AI::IsKingTrapped(const Board& board, int r, int c) {
 	// get possible moves for piece
-	auto moves = board.PossibleMoves({ r, c });
+	Piece piece = board.At(r, c);
+	auto moves = board.PossibleMoves(piece);
 	if (!moves.empty()) {
 		return false;
 	}
