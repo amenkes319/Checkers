@@ -7,9 +7,18 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <algorithm>
+
 #define BOARD_SIZE 8
-#define PAWN 1
-#define KING 2
+#define PAWN  1
+#define KING  2
+#define BLACK 1
+#define RED  -1
+
+#define IsValid(index) ( index >= 0 && index < BOARD_SIZE )
+#define IsValidPos(row, col) ( IsValid(row) && IsValid(col) )
+#define Abs(n) ( n < 0 ? -n : n )
+#define Sign(n) ( (0 < n) - (n < 0) )
+#define Avg(x, y) ( (x + y) / 2 )
 
 /**
  * Enumeration to represent the possible states of a square of the board
@@ -42,8 +51,7 @@ struct Position {
 };
 
 /* Represent a configuration of a checkers board */
-class Board
-{
+class Board {
 public:
 	Board();
 	Board(const Board &board);
@@ -76,7 +84,7 @@ public:
 	 * @param piece Position of desired piece to move
 	 * @return Hash map of all possible positions the piece can move to
 	 */
-	std::unordered_map<Position, Position> PossibleMoves(const Position& start);
+	std::unordered_map<Position, Position> PossibleMoves(const Position& start) const;
 
 	/**
 	 * Gets all possible jumps from the starting position.
@@ -84,12 +92,6 @@ public:
 	 * @return Hash map of all positions the piece can jump to
 	 */
 	std::unordered_map<Position, Position> Jumps(const Position& start);
-
-	/**
-	 * Look Ahead to determine the best possible move
-	 * @return pair of positions where the first position is the start and the second is the target
-	 */
-	std::pair<std::pair<Position, Position>, int> LookAhead(int depth, int alpha, int beta, bool maximize);
 
 	/**
 	 * Gets the piece at the given position.
@@ -127,7 +129,7 @@ private:
 	 * @param board The configuration of the board
 	 * @return 
 	 */
-	std::unordered_map<Position, Position> PossibleJumps(const Position &start, Board &board);
+	std::unordered_map<Position, Position> PossibleJumps(const Position &start, const Board &board);
 
 	/**
 	 * Recursive helper function to go down the tree of possible multi-jumps.
@@ -136,25 +138,13 @@ private:
 	 * @param start Starting position that changes with each recursive call
 	 * @param board The configuration of the board
 	 */
-	void Jumps(std::unordered_map<Position, Position> &jumps, const Position &start, Board &board);
+	void Jumps(std::unordered_map<Position, Position> &jumps, const Position &start, const Board &board);
 
 	/**
 	 * Replace the targeted piece with an empty piece.
 	 * @param target Position of piece to remove
 	 */
 	void RemovePiece(const Position& target);
-
-	/**
-	 * Returns if the coords of the piece can move to the target.
-	 * @param piece Position of desired piece to move
-	 * @param target Position of the target to move the piece to
-	 * @return true if the piece can move to the target
-	 */
-	bool IsValidMove(const Position &piece, const Position &target);
-
-	int Score();
-
-	bool IsQuiescent();
 
 	Piece m_board[BOARD_SIZE][BOARD_SIZE];
 	int m_blackCounter;
@@ -189,14 +179,7 @@ namespace std {
 			int h = 0;
 			int j;
 			for (int i = 0; i < BOARD_POSITIONS; i++) {
-
-#pragma warning( push )
-#pragma warning( disable : 26812 ) // suppress "use enum class over enum" warning
-
 				j = b.At(i / BOARD_SIZE, i % BOARD_SIZE);
-
-#pragma warning( pop )
-
 				h = h ^ table[i][j];
 			}
 			

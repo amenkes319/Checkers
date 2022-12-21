@@ -2,20 +2,12 @@
 #include <string>
 #include <regex>
 #include "Board.h"
+#include "AI.h"
 
 #define DIFFICULTY 3
 
 int main() {
-	Board b;
-//	b.Move({ 2, 1 }, { 3, 2 });
-//	b.Move({ 5, 4 }, { 4, 3 });
-//	b.PrintBoard();
-//	std::unordered_set<Position> jumps = b.PossibleMoves({ 3, 2 });
-//
-//	for (auto jump : jumps) {
-//		std::cout << jump << std::endl;
-//	}
-	
+	Board board;
 	std::regex match("([0-7](,|\\s)[0-7])");
 	std::string input;
 	bool blackTurn = true;
@@ -23,28 +15,30 @@ int main() {
 	int row, col, tRow, tCol;
 	Position startPos, targetPos;
 	std::unordered_map<Position, Position> moves;
-	b.PrintBoard();
+	AI ai;
+	
+	board.PrintBoard();
 	while (1) {
-		if (b.GetBlackPieces() == 0) {
+		if (board.GetBlackPieces() == 0) {
 			std::cout << "Red wins!" << std::endl;
 			break;
 		}
-		else if (b.GetRedPieces() == 0) {
+		else if (board.GetRedPieces() == 0) {
 			std::cout << "Black wins!" << std::endl;
 			break;
 		}
 
-		std::cout << "Black: " << b.GetBlackPieces() << std::endl;
-		std::cout << "Red: " << b.GetRedPieces() << std::endl;
+		std::cout << "Black: " << board.GetBlackPieces() << std::endl;
+		std::cout << "Red: " << board.GetRedPieces() << std::endl;
 
 		if (comp && !blackTurn) {
-			auto ai = b.LookAhead(DIFFICULTY * 2, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), blackTurn);
-			startPos = ai.first.second;
-			targetPos = ai.first.first;
-			moves = b.PossibleMoves(startPos);
+			auto aiMove = ai.LookAhead(board ,DIFFICULTY * 2, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), blackTurn);
+			startPos = aiMove.first.second;
+			targetPos = aiMove.first.first;
+			moves = board.PossibleMoves(startPos);
 
 			std::cout << "******************" << std::endl;
-			std::cout << "AI move: " << startPos << " --> " << targetPos << ", score: " << ai.second << std::endl;
+			std::cout << "AI move: " << startPos << " --> " << targetPos << ", score: " << aiMove.second << std::endl;
 			std::cout << "******************" << std::endl;
 		}
 		else {
@@ -60,8 +54,8 @@ int main() {
 			startPos = { row, col };
 
 			// Positive or negative depending on if black or red turn
-			if ((blackTurn ? 1 : -1) * b.At(row, col) > 0) {
-				moves = b.PossibleMoves(startPos);
+			if ((blackTurn ? 1 : -1) * board.At(row, col) > 0) {
+				moves = board.PossibleMoves(startPos);
 				std::cout << "Valid piece" << std::endl;
 				do {
 					std::cout << "Enter target: ";
@@ -92,8 +86,8 @@ int main() {
 				std::cout << "Invalid piece" << std::endl;
 			}
 		}
-		b.Move(startPos, targetPos, moves, abs(targetPos.row - startPos.row) > 1 || abs(targetPos.col - startPos.col) > 1);
-		b.PrintBoard();
+		board.Move(startPos, targetPos, moves, abs(targetPos.row - startPos.row) > 1 || abs(targetPos.col - startPos.col) > 1);
+		board.PrintBoard();
 		blackTurn = !blackTurn;
 		
 	}
