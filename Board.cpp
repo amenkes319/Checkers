@@ -163,9 +163,9 @@ std::unordered_map<Position, Position> Board::PossibleJumps(const Piece& start) 
 			if (!IsValidPos(start.GetRow() + i, start.GetCol() + j)) continue;
 			
 			target = At(start.GetRow() + i, start.GetCol() + j);
-			if ((Sign(start.GetType()) == Sign(i) || abs(start.GetType()) == KING) &&
+			if ((start.GetColor() == Sign(i) || abs(start.GetType()) == KING) &&
 				target.GetType() == EMPTY &&
-				Sign(At(Avg(target.GetRow(), start.GetRow()), Avg(target.GetCol(), start.GetRow())).GetType()) == -Sign(start.GetType()))
+				At(Avg(target.GetRow(), start.GetRow()), Avg(target.GetCol(), start.GetRow())).GetColor() == -start.GetColor())
 			{
 				jumps.insert({ target.GetPosition(), start.GetPosition() });
 			}
@@ -177,10 +177,10 @@ std::unordered_map<Position, Position> Board::PossibleJumps(const Piece& start) 
 
 /*  */
 void Board::RemovePiece(Piece& target) {
-	if (Sign(target.GetType()) == BLACK) {
+	if (target.GetColor() == BLACK) {
 		m_blackCounter--;
 	}
-	else if (Sign(target.GetType()) == RED) {
+	else if (target.GetColor() == RED) {
 		m_redCounter--;
 	}
 	target.SetType(EMPTY);
