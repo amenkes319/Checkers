@@ -9,7 +9,7 @@
 #include <algorithm>
 #include "Piece.h"
 
-#define BOARD_SIZE 8
+constexpr auto BOARD_SIZE = 8;
 
 #define IsValid(index) ( index >= 0 && index < BOARD_SIZE )
 #define IsValidPos(row, col) ( IsValid(row) && IsValid(col) )
@@ -38,7 +38,7 @@ public:
 	 * @param moves Map of all possible moves from start
 	 * @param isJump True if the move is a jump
 	 */
-	void Move(Piece &start, Piece &target, const std::unordered_map<Position, Position> moves, bool isJump = false);
+	void Move(Piece &start, Piece &target, const std::unordered_map<Position, Position> &moves, bool isJump = false);
 	
 	/**
 	 * Reset positions of pieces.

@@ -30,8 +30,7 @@ std::pair<std::pair<Position, Position>, int> AI::BestMove(const Board &board, i
 
 	std::pair<Position, Position> bestMove;
 	int bestScore;
-
-	// Initialize the best score based on whether we are maximizing or minimizing
+	
 	if (maximize) {
 		bestScore = std::numeric_limits<int>::min(); // black
 	}
@@ -39,11 +38,10 @@ std::pair<std::pair<Position, Position>, int> AI::BestMove(const Board &board, i
 		bestScore = std::numeric_limits<int>::max(); // red
 	}
 
-	// Create a transposition table to store the scores of previously evaluated board positions
+	// transposition table store previously explored boards
 	std::unordered_map<Board, int> transpositionTable;
 	
 	// Iterate through all possible moves
-//#pragma omp parallel for
 	for (int i = 0; i < BOARD_SIZE; i++) {
 		for (int j = 0; j < BOARD_SIZE; j++) {
 			Piece piece = board.At(i, j);
@@ -57,9 +55,7 @@ std::pair<std::pair<Position, Position>, int> AI::BestMove(const Board &board, i
 					continue;
 				}
 			}
-
-			// std::cout << "Depth: " << depth << std::endl;
-
+			
 			// Find all possible moves for the current pos
 			auto moves = board.PossibleMoves(piece);
 

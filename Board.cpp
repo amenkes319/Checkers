@@ -14,7 +14,7 @@ Board::Board(const Board& board) {
 	m_redCounter = board.m_redCounter;
 }
 
-void Board::Move(Piece &start, Piece &target, const std::unordered_map<Position, Position> moves, bool isJump) {
+void Board::Move(Piece &start, Piece &target, const std::unordered_map<Position, Position> &moves, bool isJump) {
 	target.SetType(start.GetType());
 	start.SetType(EMPTY);
 	m_board[target.GetRow()][target.GetCol()] = target;
@@ -36,8 +36,10 @@ void Board::Move(Piece &start, Piece &target, const std::unordered_map<Position,
 	// King'ing
 	if (target.GetRow() == 0 && target.GetType() == RED_PAWN) {
 		target.SetType(RED_KING);
+		m_board[target.GetRow()][target.GetCol()] = target;
 	} else if (target.GetRow() == BOARD_SIZE - 1 && target.GetType() == BLACK_PAWN) {
 		target.SetType(BLACK_KING);
+		m_board[target.GetRow()][target.GetCol()] = target;
 	}
 }
 

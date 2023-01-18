@@ -32,7 +32,7 @@ int main() {
 		std::cout << "Red: " << board.GetRedPieces() << std::endl;
 
 		if (comp && !blackTurn) {
-			auto aiMove = ai.LookAhead(board ,DIFFICULTY * 2, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), blackTurn);
+			auto aiMove = ai.BestMove(board ,DIFFICULTY * 2, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), blackTurn);
 			start = board.At(aiMove.first.second);
 			target = board.At(aiMove.first.first);
 			moves = board.PossibleMoves(start);
@@ -40,6 +40,7 @@ int main() {
 			std::cout << "******************" << std::endl;
 			std::cout << "AI move: " << start.GetPosition() << " --> " << target.GetPosition() << ", score: " << aiMove.second << std::endl;
 			std::cout << "******************" << std::endl;
+			ai.P();
 		}
 		else {
 			std::cout << "Enter " << (blackTurn ? "black" : "red") << " piece to move: ";
@@ -76,10 +77,7 @@ int main() {
 					
 					if (!moves.count(target.GetPosition())) {
 						std::cout << "Invalid target" << std::endl;
-					}/* else {
-						b.Move(startPos, targetPos, moves, abs(targetPos.row - startPos.row) > 1 || abs(targetPos.col - startPos.col) > 1);
-						b.PrintBoard();
-					}*/
+					}
 				} while (!moves.count(target.GetPosition()));
 			}
 			else {

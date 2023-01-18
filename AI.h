@@ -5,14 +5,13 @@
 
 #include "Board.h"
 #include "Piece.h"
-#include <omp.h>
 
-#define PAWN_VALUE 10
-#define KING_VALUE 20
-#define KING_TRAPPED_VALUE -3
-#define CLEAR_KING_PATH_VALUE 5
-#define PIECE_MOBILITY_VALUE 1
-#define PIECE_PROTECTION_VALUE 0.5
+constexpr auto PAWN_VALUE = 20;
+constexpr auto KING_VALUE = 28;
+constexpr auto KING_TRAPPED_VALUE = -3;
+constexpr auto CLEAR_KING_PATH_VALUE = 3;
+constexpr auto PIECE_MOBILITY_VALUE = 1;
+constexpr auto PIECE_PROTECTION_VALUE = 0.5;
 
 class AI {
 public:

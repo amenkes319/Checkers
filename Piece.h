@@ -5,10 +5,10 @@
 
 #include <iostream>
 
-#define PAWN  1
-#define KING  2
-#define BLACK 1
-#define RED  -1
+constexpr auto PAWN = 1;
+constexpr auto KING = 2;
+constexpr auto BLACK = 1;
+constexpr auto RED = -1;
 
 /**
  * Enumeration to represent the possible states of a square of the board
